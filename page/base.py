@@ -1,9 +1,13 @@
-import unittest
+#coding=utf-8
 import time
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import NoSuchElementException
+import unittest
 
-class BasePage(object):
+class BasePage():
 
     def __init__(self,driver,url):
         self.driver = driver
@@ -31,12 +35,12 @@ class BasePage(object):
         self.find_element(*elem).send_keys(text)
 
     #点击元素
-    def click_base(self,elem):
+    def click_base(self,*elem):
         self.find_element(*elem).click()
 
     #获取title
     def get_title(self):
-        return self.driver.title()
+        return self.driver.title
 
     #关闭浏览器
     def teardown(self):
@@ -56,30 +60,63 @@ class BasePage(object):
         nowurl = self.driver.current_url()
         return nowurl
 
-    #切换浏览器
-    def swithc_browser(self,browser):
-        handle = browser.current_window_handle
-        handles = browser.window_handles
+    #切换页签
+    def swithc_browser(self):
+        handle = self.driver.current_window_handle
+        handles = self.driver.window_handles
         for newhandle in handles:
             if newhandle!=handle:
-                browser.switch_to_window(newhandle)
+                self.driver.switch_to_window(newhandle)
 
-    #关闭打开的浏览器
-    def close_browser(self,browser):
-        handle = browser.current_window_handle
-        handles = browser.window_handles
+    #关闭打开的页签
+    def close_browser(self):
+        handle = self.driver.current_window_handle
+        handles = self.driver.window_handles
         for newhandle in handles:
             if newhandle == handle:
-                browser.switch_to_window(newhandle)
-                browser.close()
-                browser.switch_to_window(handles[0])
+                self.driver.switch_to_window(newhandle)
+                self.driver.close()
+                self.driver.switch_to_window(handles[0])
 
     #切换浏览器后关闭
-    def swcl_browser(self,browser):
-        handle = browser.current_window_handle
-        handles = browser.window_handles
+    def swcl_browser(self):
+        handle = self.driver.current_window_handle
+        handles = self.driver.window_handles
         for newhandle in handles:
             if newhandle!=handle:
-                browser.switch_to_window(newhandle)
-                browser.close()
-                browser.switch_to_window(handles[0])
+                self.driver.switch_to_window(newhandle)
+                self.driver.close()
+                self.driver.switch_to_window(handles[0])
+
+    #返回上一页
+    def backpage(self):
+        self.driver.back() 
+
+    #下一页
+    def forwardpage(self):
+        self.driver.forward()
+
+    #刷新本页面
+    def refreshpage(self):
+        self.driver.refresh()
+
+    #获取当前页面的url
+    def get_url(self):
+        url = self.current_url()
+        return url
+
+    #判断页面元素是否存在
+    def elem_display(self,num,*elem):
+        if num == 1:
+            self.swithc_browser()  
+
+        ele = self.find_element(*elem)
+        r = ele.is_displayed()
+
+        if num == 1:
+            self.close_browser()
+        elif num == 2:
+            self.backpage()
+        return r
+
+
